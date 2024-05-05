@@ -1,10 +1,11 @@
 from flask import render_template, redirect, url_for, flash, request
-from webhook import app,database,bcrypt
+from webhook import app,database,bcrypt, WebhookController
 from webhook.forms import FormLogin, FormCriarConta
 from webhook.models import Usuario,Cliente,Pagamento,Cliente_Curso
 from flask_login import login_user,logout_user,current_user
 from flask import Flask, render_template, request, Response, send_file
-import csv
+import time
+
 
 
 
@@ -59,6 +60,12 @@ def clientescursos():
 def relatorios():
     return render_template('relatorios.html')
 
+@app.route('/retornos')
+def retornos():
+    print("Início do programa")
+    lista_webhooks = WebhookController.load_webhooks()
+    WebhookController.processar_pagamento(lista_webhooks)
+
 
 @app.route("/pagamento_csv")
 def pagamentos_csv():
@@ -69,7 +76,7 @@ def pagamentos_csv():
 
     response = Response(csv_data, content_type="text/csv")
 
-    response.headers["Content-Disposition"] = "attachment; filename=users.csv"
+    response.headers["Content-Disposition"] = "attachment; filename=pagamentos.csv"
 
     return response
 
@@ -85,7 +92,7 @@ def clientes_csv():
 
     response = Response(csv_data, content_type="text/csv")
 
-    response.headers["Content-Disposition"] = "attachment; filename=users.csv"
+    response.headers["Content-Disposition"] = "attachment; filename=clientes.csv"
 
     return response
 
